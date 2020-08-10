@@ -1,0 +1,10 @@
+*.iml
+.DS_Store
+Thumbs.db
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/.packages
+/pubspec.lock
+/.dart_tool/
+/.idea/
+/build/
