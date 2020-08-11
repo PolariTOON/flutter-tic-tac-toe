@@ -30,7 +30,7 @@ final _light = Color(0xffffffff);
 final int _size = 3;
 final int _length = _size * _size;
 final String _noPlayer = '';
-final List<String> _players = ['0', 'X'];
+final List<String> _players = ['O', 'X'];
 
 int _calcSize() {
   return _size;
@@ -376,6 +376,7 @@ void main() {
           child: Game(),
         ),
       ),
+      debugShowCheckedModeBanner: false,
     ),
   );
 }
