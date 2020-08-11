@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart'
     show
         BorderRadius,
+        BoxConstraints,
         BuildContext,
         Color,
         Column,
@@ -8,8 +9,8 @@ import 'package:flutter/material.dart'
         CrossAxisAlignment,
         EdgeInsets,
         Expanded,
-        FlatButton,
         MaterialApp,
+        RawMaterialButton,
         RoundedRectangleBorder,
         Row,
         SafeArea,
@@ -18,6 +19,7 @@ import 'package:flutter/material.dart'
         StatefulWidget,
         StatelessWidget,
         Text,
+        TextStyle,
         Widget,
         runApp;
 
@@ -105,7 +107,14 @@ class Status extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.all(10),
               padding: EdgeInsets.all(10),
-              child: Text(text),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: _dark,
+                  height: 1.25,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ),
           Container(
@@ -114,14 +123,21 @@ class Status extends StatelessWidget {
               children: [
                 Container(
                   margin: EdgeInsets.all(5),
-                  child: FlatButton(
-                    textColor: _light,
-                    color: _dark,
+                  child: RawMaterialButton(
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.all(10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    padding: EdgeInsets.all(10),
-                    child: Text('Clear'),
+                    fillColor: _dark,
+                    child: Text(
+                      'Clear',
+                      style: TextStyle(
+                        color: _light,
+                        height: 1.25,
+                        fontSize: 16,
+                      ),
+                    ),
                     onPressed: () {
                       this._clear();
                     },
@@ -129,14 +145,21 @@ class Status extends StatelessWidget {
                 ),
                 Container(
                   margin: EdgeInsets.all(5),
-                  child: FlatButton(
-                    textColor: _light,
-                    color: _dark,
+                  child: RawMaterialButton(
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.all(10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    padding: EdgeInsets.all(10),
-                    child: Text('Undo'),
+                    fillColor: _dark,
+                    child: Text(
+                      'Undo',
+                      style: TextStyle(
+                        color: _light,
+                        height: 1.25,
+                        fontSize: 16,
+                      ),
+                    ),
                     onPressed: () {
                       this._undo();
                     },
@@ -144,14 +167,21 @@ class Status extends StatelessWidget {
                 ),
                 Container(
                   margin: EdgeInsets.all(5),
-                  child: FlatButton(
-                    textColor: _light,
-                    color: _dark,
+                  child: RawMaterialButton(
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.all(10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    padding: EdgeInsets.all(10),
-                    child: Text('Redo'),
+                    fillColor: _dark,
+                    child: Text(
+                      'Redo',
+                      style: TextStyle(
+                        color: _light,
+                        height: 1.25,
+                        fontSize: 16,
+                      ),
+                    ),
                     onPressed: () {
                       this._redo();
                     },
@@ -181,14 +211,21 @@ class Board extends StatelessWidget {
         Expanded(
           child: Container(
             margin: EdgeInsets.all(5),
-            child: FlatButton(
-              textColor: _dark,
-              color: _light,
+            child: RawMaterialButton(
+              constraints: BoxConstraints(),
+              padding: EdgeInsets.all(10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
-              padding: EdgeInsets.all(10),
-              child: Text(entry.value),
+              fillColor: _light,
+              child: Text(
+                entry.value,
+                style: TextStyle(
+                  color: _dark,
+                  height: 1.25,
+                  fontSize: 16,
+                ),
+              ),
               onPressed: () {
                 this._fill(entry.key);
               },
