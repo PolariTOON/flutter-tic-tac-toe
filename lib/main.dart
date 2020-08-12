@@ -28,6 +28,33 @@ final _title = 'Tic Tac Toe';
 final _dark = Color(0xff333333);
 final _light = Color(0xffffffff);
 
+class _HistoryStep {
+  final List<String> squares;
+  final bool winner;
+
+  const _HistoryStep(this.squares, this.winner);
+}
+
+class _StatusData {
+  final int step;
+  final bool winner;
+
+  const _StatusData(this.step, this.winner);
+}
+
+class _BoardData {
+  final List<String> squares;
+
+  const _BoardData(this.squares);
+}
+
+class _GameData {
+  int step;
+  List<_HistoryStep> history;
+
+  _GameData(this.step, this.history);
+}
+
 final int _size = 3;
 final int _length = _size * _size;
 final String _noPlayer = '';
@@ -49,12 +76,12 @@ String _calcPlayer(int step) {
   return _players[step % _players.length];
 }
 
-bool _isWinner(List<String> board, String player) {
+bool _isWinner(List<String> squares, String player) {
   final int size = _calcSize();
   rows:
   for (int i = 0; i < size; ++i) {
     for (int j = 0; j < size; ++j) {
-      if (board[i * size + j] != player) {
+      if (squares[i * size + j] != player) {
         continue rows;
       }
     }
@@ -63,7 +90,7 @@ bool _isWinner(List<String> board, String player) {
   columns:
   for (int i = 0; i < size; ++i) {
     for (int j = 0; j < size; ++j) {
-      if (board[j * size + i] != player) {
+      if (squares[j * size + i] != player) {
         continue columns;
       }
     }
@@ -72,7 +99,7 @@ bool _isWinner(List<String> board, String player) {
   diagonals:
   for (int i = 0; i < 2; ++i) {
     for (int j = 0; j < size; ++j) {
-      if (board[(i + j) * (size + 1 - i * 2)] != player) {
+      if (squares[(i + j) * (size + 1 - i * 2)] != player) {
         continue diagonals;
       }
     }
@@ -84,7 +111,7 @@ bool _isWinner(List<String> board, String player) {
 class StatusParagraphText extends StatelessWidget {
   final String data;
 
-  StatusParagraphText(this.data);
+  const StatusParagraphText(this.data);
 
   Widget build(BuildContext context) {
     return Text(
@@ -101,7 +128,7 @@ class StatusParagraphText extends StatelessWidget {
 class StatusParagraph extends StatelessWidget {
   final Widget child;
 
-  StatusParagraph({
+  const StatusParagraph({
     @required this.child,
   });
 
@@ -119,7 +146,7 @@ class StatusParagraph extends StatelessWidget {
 class StatusMenuButtonText extends StatelessWidget {
   final String data;
 
-  StatusMenuButtonText(this.data);
+  const StatusMenuButtonText(this.data);
 
   Widget build(BuildContext context) {
     return Text(
@@ -137,7 +164,7 @@ class StatusMenuButton extends StatelessWidget {
   final Widget child;
   final void Function() onPressed;
 
-  StatusMenuButton({
+  const StatusMenuButton({
     @required this.child,
     @required this.onPressed,
   });
@@ -162,7 +189,7 @@ class StatusMenuButton extends StatelessWidget {
 class StatusMenu extends StatelessWidget {
   final List<Widget> children;
 
-  StatusMenu({
+  const StatusMenu({
     this.children = const [],
   });
 
@@ -177,18 +204,23 @@ class StatusMenu extends StatelessWidget {
 }
 
 class Status extends StatelessWidget {
-  final int _step;
-  final bool _winner;
-  final void Function() _clear;
-  final void Function() _undo;
-  final void Function() _redo;
+  final _StatusData data;
+  final void Function() clear;
+  final void Function() undo;
+  final void Function() redo;
 
-  Status(this._step, this._winner, this._clear, this._undo, this._redo);
+  const Status(
+    this.data, {
+    @required this.clear,
+    @required this.undo,
+    @required this.redo,
+  });
 
   Widget build(BuildContext context) {
-    final int step = this._step;
-    final bool winner = this._winner;
-    final String data = winner
+    final _StatusData status = this.data;
+    final int step = status.step;
+    final bool winner = status.winner;
+    final String text = winner
         ? 'Winner: ${_calcPlayer(step)}'
         : step == _calcLength()
             ? 'No winner...'
@@ -198,21 +230,21 @@ class Status extends StatelessWidget {
       child: Row(
         children: [
           StatusParagraph(
-            child: StatusParagraphText(data),
+            child: StatusParagraphText(text),
           ),
           StatusMenu(
             children: [
               StatusMenuButton(
                 child: StatusMenuButtonText('Clear'),
-                onPressed: this._clear,
+                onPressed: this.clear,
               ),
               StatusMenuButton(
                 child: StatusMenuButtonText('Undo'),
-                onPressed: this._undo,
+                onPressed: this.undo,
               ),
               StatusMenuButton(
                 child: StatusMenuButtonText('Redo'),
-                onPressed: this._redo,
+                onPressed: this.redo,
               ),
             ],
           ),
@@ -290,18 +322,23 @@ class BoardTrack extends StatelessWidget {
 }
 
 class Board extends StatelessWidget {
-  final List<String> _board;
-  final void Function(int index) _fill;
+  final _BoardData data;
+  final void Function(int index) fill;
 
-  Board(this._board, this._fill);
+  Board(
+    this.data, {
+    @required this.fill,
+  });
 
   Widget build(BuildContext context) {
     final int size = _calcSize();
+    final board = this.data;
+    final squares = board.squares;
     final List<Widget> cells = [
-      for (MapEntry<int, String> entry in this._board.asMap().entries)
+      for (MapEntry<int, String> entry in squares.asMap().entries)
         BoardTrackButton(
           child: BoardTrackButtonText(entry.value),
-          onPressed: () => this._fill(entry.key),
+          onPressed: () => this.fill(entry.key),
         ),
     ];
     final List<Widget> rows = [
@@ -331,92 +368,102 @@ class Game extends StatefulWidget {
   }
 }
 
-class _HistoryStep {
-  final List<String> board;
-  final bool winner;
-  _HistoryStep(this.board, this.winner);
-}
-
 class _GameState extends State<Game> {
-  int _step;
-  List<_HistoryStep> _history;
+  final _GameData _data;
 
-  _GameState() {
+  _GameState._(this._data);
+
+  factory _GameState() {
     final int step = 0;
     final int length = _calcLength();
     final String noPlayer = _calcNoPlayer();
-    final List<String> board = List<String>.filled(length, noPlayer);
+    final List<String> squares = List<String>.filled(length, noPlayer);
     final bool winner = false;
-    final List<_HistoryStep> history = [_HistoryStep(board, winner)];
-    this._step = step;
-    this._history = history;
+    final List<_HistoryStep> history = [_HistoryStep(squares, winner)];
+    final _GameData data = _GameData(step, history);
+    return _GameState._(data);
   }
 
   Widget build(BuildContext context) {
-    final int step = this._step;
-    final List<_HistoryStep> history = this._history;
+    final game = this._data;
+    final int step = game.step;
+    final List<_HistoryStep> history = game.history;
     final _HistoryStep historyStep = history[step];
-    final board = historyStep.board;
+    final squares = historyStep.squares;
     final winner = historyStep.winner;
+    final _StatusData status = _StatusData(step, winner);
+    final _BoardData board = _BoardData(squares);
     return Column(
       children: [
-        Status(step, winner, this._clear, this._undo, this._redo),
-        Board(board, this._fill),
+        Status(
+          status,
+          clear: this._clear,
+          undo: this._undo,
+          redo: this._redo,
+        ),
+        Board(
+          board,
+          fill: this._fill,
+        ),
       ],
     );
   }
 
   void _fill(int index) {
-    final int step = this._step;
-    final List<_HistoryStep> history = this._history;
+    final game = this._data;
+    final int step = game.step;
+    final List<_HistoryStep> history = game.history;
     final _HistoryStep historyStep = history[step];
-    final board = historyStep.board;
+    final squares = historyStep.squares;
     final winner = historyStep.winner;
     final String noPlayer = _calcNoPlayer();
-    if (winner || board[index] != noPlayer) {
+    if (winner || squares[index] != noPlayer) {
       return;
     }
     this.setState(() {
       final int nextStep = step + 1;
-      final List<String> nextBoard = List.from(board);
+      final List<String> nextSquares = List.from(squares);
       final String nextPlayer = _calcPlayer(nextStep);
-      nextBoard[index] = nextPlayer;
-      final bool nextWinner = _isWinner(nextBoard, nextPlayer);
-      this._step = nextStep;
+      nextSquares[index] = nextPlayer;
+      final bool nextWinner = _isWinner(nextSquares, nextPlayer);
+      game.step = nextStep;
       history.removeRange(nextStep, history.length);
-      history.add(_HistoryStep(nextBoard, nextWinner));
+      history.add(_HistoryStep(nextSquares, nextWinner));
     });
   }
 
   void _clear() {
-    final List<_HistoryStep> history = this._history;
+    final game = this._data;
+    final List<_HistoryStep> history = game.history;
     this.setState(() {
       final int nextStep = 0;
-      this._step = nextStep;
+      game.step = nextStep;
       history.removeRange(1, history.length);
     });
   }
 
   void _undo() {
-    final int step = this._step;
+    final game = this._data;
+    final int step = game.step;
     if (step == 0) {
       return;
     }
     this.setState(() {
       final int nextStep = step - 1;
-      this._step = nextStep;
+      game.step = nextStep;
     });
   }
 
   void _redo() {
-    final int step = this._step;
-    final List<_HistoryStep> history = this._history;
+    final game = this._data;
+    final int step = game.step;
+    final List<_HistoryStep> history = game.history;
     if (step + 1 == history.length) {
       return;
     }
     this.setState(() {
       final int nextStep = step + 1;
-      this._step = nextStep;
+      game.step = nextStep;
     });
   }
 }
