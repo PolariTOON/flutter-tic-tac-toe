@@ -21,6 +21,7 @@ import 'package:flutter/material.dart'
         Text,
         TextStyle,
         Widget,
+        required,
         runApp;
 
 final _title = 'Tic Tac Toe';
@@ -80,6 +81,101 @@ bool _isWinner(List<String> board, String player) {
   return false;
 }
 
+class StatusParagraphText extends StatelessWidget {
+  final String data;
+
+  StatusParagraphText(this.data);
+
+  Widget build(BuildContext context) {
+    return Text(
+      this.data,
+      style: TextStyle(
+        color: _dark,
+        height: 1.25,
+        fontSize: 16,
+      ),
+    );
+  }
+}
+
+class StatusParagraph extends StatelessWidget {
+  final Widget child;
+
+  StatusParagraph({
+    @required this.child,
+  });
+
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
+        child: this.child,
+      ),
+    );
+  }
+}
+
+class StatusMenuButtonText extends StatelessWidget {
+  final String data;
+
+  StatusMenuButtonText(this.data);
+
+  Widget build(BuildContext context) {
+    return Text(
+      this.data,
+      style: TextStyle(
+        color: _light,
+        height: 1.25,
+        fontSize: 16,
+      ),
+    );
+  }
+}
+
+class StatusMenuButton extends StatelessWidget {
+  final Widget child;
+  final void Function() onPressed;
+
+  StatusMenuButton({
+    @required this.child,
+    @required this.onPressed,
+  });
+
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      child: RawMaterialButton(
+        constraints: BoxConstraints(),
+        padding: EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        fillColor: _dark,
+        child: this.child,
+        onPressed: this.onPressed,
+      ),
+    );
+  }
+}
+
+class StatusMenu extends StatelessWidget {
+  final List<Widget> children;
+
+  StatusMenu({
+    this.children = const [],
+  });
+
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(5),
+      child: Row(
+        children: this.children,
+      ),
+    );
+  }
+}
+
 class Status extends StatelessWidget {
   final int _step;
   final bool _winner;
@@ -89,12 +185,10 @@ class Status extends StatelessWidget {
 
   Status(this._step, this._winner, this._clear, this._undo, this._redo);
 
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     final int step = this._step;
     final bool winner = this._winner;
-    final String text = winner
+    final String data = winner
         ? 'Winner: ${_calcPlayer(step)}'
         : step == _calcLength()
             ? 'No winner...'
@@ -103,94 +197,93 @@ class Status extends StatelessWidget {
       color: _light,
       child: Row(
         children: [
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(10),
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: _dark,
-                  height: 1.25,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+          StatusParagraph(
+            child: StatusParagraphText(data),
           ),
-          Container(
-            padding: EdgeInsets.all(5),
-            child: Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(5),
-                  child: RawMaterialButton(
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    fillColor: _dark,
-                    child: Text(
-                      'Clear',
-                      style: TextStyle(
-                        color: _light,
-                        height: 1.25,
-                        fontSize: 16,
-                      ),
-                    ),
-                    onPressed: () {
-                      this._clear();
-                    },
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(5),
-                  child: RawMaterialButton(
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    fillColor: _dark,
-                    child: Text(
-                      'Undo',
-                      style: TextStyle(
-                        color: _light,
-                        height: 1.25,
-                        fontSize: 16,
-                      ),
-                    ),
-                    onPressed: () {
-                      this._undo();
-                    },
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(5),
-                  child: RawMaterialButton(
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    fillColor: _dark,
-                    child: Text(
-                      'Redo',
-                      style: TextStyle(
-                        color: _light,
-                        height: 1.25,
-                        fontSize: 16,
-                      ),
-                    ),
-                    onPressed: () {
-                      this._redo();
-                    },
-                  ),
-                ),
-              ],
-            ),
+          StatusMenu(
+            children: [
+              StatusMenuButton(
+                child: StatusMenuButtonText('Clear'),
+                onPressed: this._clear,
+              ),
+              StatusMenuButton(
+                child: StatusMenuButtonText('Undo'),
+                onPressed: this._undo,
+              ),
+              StatusMenuButton(
+                child: StatusMenuButtonText('Redo'),
+                onPressed: this._redo,
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class BoardTrackButtonText extends StatelessWidget {
+  final String data;
+
+  BoardTrackButtonText(this.data);
+
+  Widget build(BuildContext context) {
+    return Text(
+      this.data,
+      style: TextStyle(
+        color: _dark,
+        height: 1.25,
+        fontSize: 16,
+      ),
+    );
+  }
+}
+
+class BoardTrackButton extends StatelessWidget {
+  final Widget child;
+  final void Function() onPressed;
+
+  BoardTrackButton({
+    @required this.child,
+    @required this.onPressed,
+  });
+
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.all(5),
+        child: RawMaterialButton(
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.all(10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          fillColor: _light,
+          child: this.child,
+          onPressed: this.onPressed,
+        ),
+      ),
+    );
+  }
+}
+
+class BoardTrack extends StatelessWidget {
+  final List<Widget> children;
+
+  BoardTrack({
+    this.children = const [],
+  });
+
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 5,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: this.children,
+        ),
       ),
     );
   }
@@ -202,56 +295,27 @@ class Board extends StatelessWidget {
 
   Board(this._board, this._fill);
 
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     final int size = _calcSize();
     final List<Widget> cells = [
       for (MapEntry<int, String> entry in this._board.asMap().entries)
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.all(5),
-            child: RawMaterialButton(
-              constraints: BoxConstraints(),
-              padding: EdgeInsets.all(10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
-              fillColor: _light,
-              child: Text(
-                entry.value,
-                style: TextStyle(
-                  color: _dark,
-                  height: 1.25,
-                  fontSize: 16,
-                ),
-              ),
-              onPressed: () {
-                this._fill(entry.key);
-              },
-            ),
-          ),
+        BoardTrackButton(
+          child: BoardTrackButtonText(entry.value),
+          onPressed: () => this._fill(entry.key),
         ),
     ];
     final List<Widget> rows = [
       for (int index = 0; index < size; ++index)
-        Expanded(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: cells.sublist(
-                index * size,
-                (index + 1) * size,
-              ),
-            ),
-          ),
+        BoardTrack(
+          children: cells.sublist(index * size, (index + 1) * size),
         ),
     ];
     return Expanded(
       child: Container(
         color: _dark,
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+        padding: EdgeInsets.symmetric(
+          vertical: 5,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: rows,
@@ -288,9 +352,7 @@ class _GameState extends State<Game> {
     this._history = history;
   }
 
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     final int step = this._step;
     final List<_HistoryStep> history = this._history;
     final _HistoryStep historyStep = history[step];
@@ -314,29 +376,25 @@ class _GameState extends State<Game> {
     if (winner || board[index] != noPlayer) {
       return;
     }
-    this.setState(
-      () {
-        final int nextStep = step + 1;
-        final List<String> nextBoard = List.from(board);
-        final String nextPlayer = _calcPlayer(nextStep);
-        nextBoard[index] = nextPlayer;
-        final bool nextWinner = _isWinner(nextBoard, nextPlayer);
-        this._step = nextStep;
-        history.removeRange(nextStep, history.length);
-        history.add(_HistoryStep(nextBoard, nextWinner));
-      },
-    );
+    this.setState(() {
+      final int nextStep = step + 1;
+      final List<String> nextBoard = List.from(board);
+      final String nextPlayer = _calcPlayer(nextStep);
+      nextBoard[index] = nextPlayer;
+      final bool nextWinner = _isWinner(nextBoard, nextPlayer);
+      this._step = nextStep;
+      history.removeRange(nextStep, history.length);
+      history.add(_HistoryStep(nextBoard, nextWinner));
+    });
   }
 
   void _clear() {
     final List<_HistoryStep> history = this._history;
-    this.setState(
-      () {
-        final int nextStep = 0;
-        this._step = nextStep;
-        history.removeRange(1, history.length);
-      },
-    );
+    this.setState(() {
+      final int nextStep = 0;
+      this._step = nextStep;
+      history.removeRange(1, history.length);
+    });
   }
 
   void _undo() {
@@ -344,12 +402,10 @@ class _GameState extends State<Game> {
     if (step == 0) {
       return;
     }
-    this.setState(
-      () {
-        final int nextStep = step - 1;
-        this._step = nextStep;
-      },
-    );
+    this.setState(() {
+      final int nextStep = step - 1;
+      this._step = nextStep;
+    });
   }
 
   void _redo() {
@@ -358,12 +414,10 @@ class _GameState extends State<Game> {
     if (step + 1 == history.length) {
       return;
     }
-    this.setState(
-      () {
-        final int nextStep = step + 1;
-        this._step = nextStep;
-      },
-    );
+    this.setState(() {
+      final int nextStep = step + 1;
+      this._step = nextStep;
+    });
   }
 }
 
@@ -376,7 +430,6 @@ void main() {
           child: Game(),
         ),
       ),
-      debugShowCheckedModeBanner: false,
     ),
   );
 }
